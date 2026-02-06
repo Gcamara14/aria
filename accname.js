@@ -177,7 +177,9 @@
 
     // --- Execution ---
 
-    const elements = document.querySelectorAll('button, a[href], input:not([type="hidden"]), select, textarea, [role="button"], [role="link"], [role="img"]');
+    // Select ALL elements that might have an accessible name or role
+    // This includes interactive elements, but also generic containers that might be mislabeled
+    const elements = document.querySelectorAll('[aria-label], [aria-labelledby], [role], button, a[href], input:not([type="hidden"]), select, textarea, details, summary');
     
     // Pass 1: Collect Data & Filter
     const items = [];
@@ -187,8 +189,8 @@
         // 0. Base visibility check
         if (!isVisible(el)) return;
         
-        // 1. Aria-Hidden Logic
-        if (el.getAttribute('aria-hidden') === 'true') return;
+        // 1. Aria-Hidden Logic (Smarter Check: Is element OR ancestor hidden?)
+        if (el.closest('[aria-hidden="true"]')) return;
 
         const name = computeName(el);
         const lowerName = name.toLowerCase().trim();
