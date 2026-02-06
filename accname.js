@@ -194,7 +194,7 @@
         const lowerName = name.toLowerCase().trim();
         
         let tag = el.tagName.toLowerCase();
-        let href = (tag === 'a' && el.hasAttribute('href')) ? el.getAttribute('href') : null;
+        let href = (tag === 'a' && el.hasAttribute('href')) ? el.href : null;
         
         if (lowerName) {
             if (!nameData[lowerName]) nameData[lowerName] = [];
@@ -249,7 +249,8 @@
                         id: rule.id,
                         msg: msg,
                         severity: rule.severity,
-                        guidance: rule.guidance
+                        guidance: rule.guidance,
+                        requiresReview: true
                     });
                 }
             } else {
@@ -295,6 +296,7 @@
                 .tag-critical { background: #ff5630; color: white; padding: 2px 6px; border-radius: 3px; font-size: 11px; font-weight: bold; }
                 .tag-moderate { background: #ffab00; color: #172b4d; padding: 2px 6px; border-radius: 3px; font-size: 11px; font-weight: bold; }
                 .tag-warning { background: #00b8d9; color: white; padding: 2px 6px; border-radius: 3px; font-size: 11px; font-weight: bold; }
+                .tag-review { background: #eAe6ff; color: #403294; padding: 2px 6px; border-radius: 3px; font-size: 11px; font-weight: bold; margin-right: 6px; }
                 table { width: 100%; background: #fff; border-collapse: collapse; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
                 th { background: #fafbfc; text-align: left; padding: 12px; border-bottom: 2px solid #dfe1e6; position: sticky; top: 0; font-size: 12px; text-transform: uppercase; color: #5e6c84; }
                 td { padding: 12px; border-bottom: 1px solid #dfe1e6; font-size: 14px; vertical-align: top; }
@@ -399,6 +401,7 @@
                     <li class="issue-item">
                         <div class="issue-header">
                             <span class="tag-${i.severity.toLowerCase()}">${i.severity}</span>
+                            ${i.requiresReview ? '<span class="tag-review">Needs Human/AI Review</span>' : ''}
                             <span><b>[${i.id}]</b> ${i.msg}</span>
                         </div>
                         ${i.guidance ? `<div class="guidance">${i.guidance}</div>` : ''}
