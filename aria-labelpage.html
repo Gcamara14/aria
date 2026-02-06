@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ARIA-label Test Page — Almost Every Element</title>
+  <style>
+    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; line-height:1.4; padding:20px; }
+    section { border: 1px dashed #ddd; padding:12px; margin:10px 0; border-radius:6px; }
+    small.block { display:block; margin-top:6px; color:#666 }
+    table { border-collapse: collapse; width:100%; }
+    th, td { border:1px solid #ccc; padding:6px; }
+    .grid { display:grid; grid-template-columns: repeat(3, 1fr); gap:8px }
+  </style>
+</head>
+<body aria-label="page-root">
+  <header aria-label="site-header">
+    <h1 aria-label="page-title">ARIA-label Test Page</h1>
+    <nav aria-label="primary-navigation">
+      <ul aria-label="nav-list">
+        <li aria-label="nav-item-home"><a href="#" aria-label="nav-link-home">Home</a></li>
+        <li aria-label="nav-item-about"><a href="#" aria-label="nav-link-about">About</a></li>
+        <li aria-label="nav-item-contact"><a href="#" aria-label="nav-link-contact">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main aria-label="main-content">
+    <section aria-label="text-section">
+      <h2 aria-label="section-heading">Text & Inline Elements</h2>
+      <p aria-label="paragraph">This paragraph has <strong aria-label="strong-element">strong</strong>, <b aria-label="b-element">b</b>, <em aria-label="em-element">em</em>, <i aria-label="i-element">i</i>, <u aria-label="u-element">u</u> and <small aria-label="small-element">small</small> elements inside.</p>
+      <p aria-label="more-text">Also includes <mark aria-label="mark-element">mark</mark>, <del aria-label="del-element">deleted</del>, <ins aria-label="ins-element">inserted</ins>, <sub aria-label="sub-element">sub</sub>, <sup aria-label="sup-element">sup</sup>, <code aria-label="code-element">const x = 1</code> and <samp aria-label="samp-element">sample output</samp>.</p>
+      <p aria-label="phrasing"><abbr aria-label="abbr-element" title="Hyper Text Markup Language">HTML</abbr> — <cite aria-label="cite-element">Some Publication</cite> — <q aria-label="q-element">a short quote</q></p>
+      <p aria-label="keyboard">Keyboard: <kbd aria-label="kbd-element">Ctrl + C</kbd></p>
+    </section>
+
+    <section aria-label="sections-and-structural">
+      <h2 aria-label="section-struct">Structural Elements</h2>
+      <article aria-label="article-1">
+        <header aria-label="article-header"><h3 aria-label="article-title">An article</h3></header>
+        <p aria-label="article-body">Article body text.</p>
+        <footer aria-label="article-footer">Article footer</footer>
+      </article>
+
+      <aside aria-label="page-aside">Aside / complementary content</aside>
+
+      <figure aria-label="example-figure">
+        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='60'%3E%3Crect width='100%25' height='100%25' fill='%23ddd'/%3E%3Ctext x='10' y='35' font-size='12'%3Eplaceholder%3C/text%3E%3C/svg%3E" alt="placeholder image" aria-label="figure-img" />
+        <figcaption aria-label="figure-caption">Figure caption</figcaption>
+      </figure>
+
+      <section aria-label="nested-section">
+        <h4 aria-label="nested-heading">Nested section</h4>
+        <p aria-label="nested-paragraph">Nested content here.</p>
+      </section>
+    </section>
+
+    <section aria-label="lists">
+      <h2 aria-label="lists-heading">Lists</h2>
+      <ul aria-label="unordered-list">
+        <li aria-label="li-1">Item one</li>
+        <li aria-label="li-2">Item two</li>
+      </ul>
+      <ol aria-label="ordered-list">
+        <li aria-label="oli-1">First</li>
+        <li aria-label="oli-2">Second</li>
+      </ol>
+      <dl aria-label="definition-list">
+        <dt aria-label="term-1">Term</dt>
+        <dd aria-label="def-1">Definition</dd>
+      </dl>
+    </section>
+
+    <section aria-label="form-controls">
+      <h2 aria-label="forms-heading">Forms & Form Controls</h2>
+      <form aria-label="test-form" action="#" method="post">
+        <fieldset aria-label="fieldset-name">
+          <legend aria-label="legend-name">Personal information</legend>
+          <label aria-label="label-firstname">First name: <input aria-label="input-firstname" type="text" name="first" value="" /></label>
+          <label aria-label="label-lastname">Last name: <input aria-label="input-lastname" type="text" name="last" /></label>
+          <label aria-label="label-email">Email: <input aria-label="input-email" type="email" name="email" /></label>
+
+          <label aria-label="label-password">Password: <input aria-label="input-password" type="password" name="pw" /></label>
+          <label aria-label="label-search">Search: <input aria-label="input-search" type="search" name="q" /></label>
+
+          <label aria-label="label-number">Number: <input aria-label="input-number" type="number" name="num" min="0" max="10" /></label>
+          <label aria-label="label-range">Range: <input aria-label="input-range" type="range" name="r" min="0" max="100" /></label>
+          <label aria-label="label-color">Color: <input aria-label="input-color" type="color" name="c" /></label>
+          <label aria-label="label-date">Date: <input aria-label="input-date" type="date" name="date" /></label>
+          <label aria-label="label-datetime">Date/Time: <input aria-label="input-datetime" type="datetime-local" name="dt" /></label>
+          <label aria-label="label-month">Month: <input aria-label="input-month" type="month" name="m" /></label>
+          <label aria-label="label-week">Week: <input aria-label="input-week" type="week" name="w" /></label>
+          <label aria-label="label-time">Time: <input aria-label="input-time" type="time" name="t" /></label>
+
+          <div aria-label="checkbox-group">
+            <label aria-label="label-checkbox-1"><input aria-label="input-checkbox-1" type="checkbox" name="c1" /> Checkbox 1</label>
+            <label aria-label="label-checkbox-2"><input aria-label="input-checkbox-2" type="checkbox" name="c2" /> Checkbox 2</label>
+          </div>
+
+          <div aria-label="radio-group">
+            <label aria-label="label-radio-a"><input aria-label="input-radio-a" type="radio" name="radio" value="a" /> A</label>
+            <label aria-label="label-radio-b"><input aria-label="input-radio-b" type="radio" name="radio" value="b" /> B</label>
+          </div>
+
+          <label aria-label="label-textarea">Message: <textarea aria-label="textarea-message" rows="3"></textarea></label>
+
+          <label aria-label="label-select">Select: 
+            <select aria-label="select-main">
+              <optgroup aria-label="optgroup-1" label="Group 1">
+                <option aria-label="option-1" value="1">One</option>
+                <option aria-label="option-2" value="2">Two</option>
+              </optgroup>
+              <optgroup aria-label="optgroup-2" label="Group 2">
+                <option aria-label="option-3" value="3">Three</option>
+              </optgroup>
+            </select>
+          </label>
+
+          <label aria-label="label-file">Upload: <input aria-label="input-file" type="file" /></label>
+
+          <button aria-label="button-submit" type="submit">Submit</button>
+          <button aria-label="button-reset" type="reset">Reset</button>
+          <button aria-label="button-generic" type="button">Click</button>
+        </fieldset>
+      </form>
+    </section>
+
+    <section aria-label="media">
+      <h2 aria-label="media-heading">Media Elements</h2>
+      <audio aria-label="audio-sample" controls>
+        <source aria-label="audio-source-mp3" src="" type="audio/mpeg">Your browser does not support audio element.
+      </audio>
+
+      <video aria-label="video-sample" controls width="320" height="180">
+        <source aria-label="video-source-mp4" src="" type="video/mp4">Your browser does not support video.
+      </video>
+
+      <canvas aria-label="canvas-example" width="200" height="80"></canvas>
+      <svg aria-label="svg-example" width="120" height="60" role="img" xmlns="http://www.w3.org/2000/svg">
+        <rect width="100%" height="100%" fill="#eee"></rect>
+        <text x="10" y="30" font-size="12">SVG</text>
+      </svg>
+
+      <picture aria-label="picture-example">
+        <img aria-label="picture-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='60'%3E%3Crect width='100%25' height='100%25' fill='%23f5f5f5'/%3E%3Ctext x='10' y='35' font-size='12'%3Epicture%3C/text%3E%3C/svg%3E" alt="picture placeholder" />
+      </picture>
+    </section>
+
+    <section aria-label="interactive">
+      <h2 aria-label="interactive-heading">Interactive & Newer Elements</h2>
+      <details aria-label="details-example">
+        <summary aria-label="summary-example">Details / Summary</summary>
+        <p aria-label="details-content">Detail content here.</p>
+      </details>
+
+      <dialog aria-label="dialog-example" open>
+        <p aria-label="dialog-text">Dialog (open) — some browsers may render this differently.</p>
+        <button aria-label="dialog-close">Close</button>
+      </dialog>
+
+      <progress aria-label="progress-example" value="70" max="100">70%</progress>
+      <meter aria-label="meter-example" value="0.6">60%</meter>
+
+      <meter aria-label="meter-battery" min="0" max="1" low="0.2" high="0.8" optimum="1" value="0.9"></meter>
+
+      <time aria-label="time-example" datetime="2026-02-06">Feb 6, 2026</time>
+
+      <output aria-label="output-example">Result: <span aria-label="output-value">42</span></output>
+    </section>
+
+    <section aria-label="embedded">
+      <h2 aria-label="embedded-heading">Embedding & Plugin Elements</h2>
+      <iframe aria-label="iframe-example" title="example-iframe" srcdoc="&lt;p&gt;iframe content&lt;/p&gt;" width="300" height="80"></iframe>
+      <object aria-label="object-example" data="#" type="text/html" width="200" height="50"></object>
+      <embed aria-label="embed-example" src="#" type="application/pdf" width="200" height="50" />
+    </section>
+
+    <section aria-label="table-section">
+      <h2 aria-label="table-heading">Tables</h2>
+      <table aria-label="sample-table">
+        <caption aria-label="table-caption">Table caption</caption>
+        <thead aria-label="table-head">
+          <tr aria-label="table-row-head"><th aria-label="th-1">Head 1</th><th aria-label="th-2">Head 2</th></tr>
+        </thead>
+        <tbody aria-label="table-body">
+          <tr aria-label="table-row-1"><td aria-label="td-1">Cell 1</td><td aria-label="td-2">Cell 2</td></tr>
+        </tbody>
+        <tfoot aria-label="table-foot"><tr aria-label="table-row-foot"><td aria-label="foot-1">Foot</td><td aria-label="foot-2">Foot2</td></tr></tfoot>
+      </table>
+    </section>
+
+    <section aria-label="semantic">
+      <h2 aria-label="semantic-heading">Other Semantic Elements</h2>
+      <address aria-label="address-element">123 Example St, City</address>
+      <blockquote aria-label="blockquote-example">A longer quoted block.</blockquote>
+      <noscript aria-label="noscript-example">No script content</noscript>
+      <template aria-label="template-example">Template content (not rendered)</template>
+    </section>
+
+    <section aria-label="misc-elements">
+      <h2 aria-label="misc-heading">Miscellaneous</h2>
+      <a aria-label="anchor-example" href="#">A simple link</a>
+      <a aria-label="anchor-button" role="button" href="#">Link as button</a>
+      <span aria-label="span-example">A span</span>
+      <div aria-label="div-example">A div</div>
+      <main aria-label="nested-main">(nested main for testing)</main>
+      <hr aria-label="horizontal-rule" />
+      <br aria-label="line-break" />
+      <embed aria-label="embed-2" />
+      <object aria-label="object-2"></object>
+
+      <svg aria-label="svg-2" width="80" height="40"><circle cx="20" cy="20" r="18"/></svg>
+    </section>
+
+  </main>
+
+  <footer aria-label="site-footer">
+    <p aria-label="footer-text">Footer with <a aria-label="footer-link" href="#">link</a></p>
+  </footer>
+
+  <script>
+    // Small helpers that set a visible outline when elements are focused via keyboard to help manual testing
+    document.addEventListener('keydown', function(e){ if(e.key === 'Tab') document.body.classList.add('show-focus'); });
+    document.addEventListener('mousedown', function(){ document.body.classList.remove('show-focus'); });
+    document.querySelectorAll('*').forEach(el => {
+      // add a visible outline if focused and the body has show-focus class
+      el.addEventListener('focus', () => { if(document.body.classList.contains('show-focus')) el.style.outline = '2px solid #06f'; });
+      el.addEventListener('blur', () => { el.style.outline = ''; });
+    });
+  </script>
+</body>
+</html>
