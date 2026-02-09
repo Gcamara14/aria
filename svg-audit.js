@@ -85,7 +85,7 @@
             if (missingRole && missingName) {
                 status = 'Fail';
                 msg = 'Visible icon missing role="img" AND accessible name';
-                suggestion = 'Add aria-hidden="true" if decorative. OR add role="img" and aria-label="..." if meaningful.';
+                suggestion = 'Add aria-hidden="true" if decorative. If meaningful, you MUST add BOTH role="img" AND aria-label="...".';
             } else if (missingRole) {
                 status = 'Fail';
                 msg = 'Visible icon missing role="img"';

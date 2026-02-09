@@ -220,9 +220,9 @@
                 // Helper for suggestion
                 const getSuggestion = () => {
                     const interactive = el.querySelector('input, button, a[href], select, textarea');
-                    if (interactive) return ` (Fix: Move aria-label to <${interactive.tagName.toLowerCase()}>)`;
-                    if (tag === 'label') return ' (Fix: Remove aria-label, use visible text)';
-                    return ' (Fix: Remove attribute or add valid role)';
+                    if (interactive) return ` (Fix: Move aria-label/aria-labelledby to <${interactive.tagName.toLowerCase()}>)`;
+                    if (tag === 'label') return ' (Fix: Remove aria-label/aria-labelledby, use visible text)';
+                    return ' (Fix: Remove aria-label/aria-labelledby or add valid role)';
                 };
 
                 // List of roles that PROHIBIT naming (ARIA 1.2)
@@ -283,6 +283,11 @@
             'radiogroup', 'tablist', 'tree', 'treegrid', 'toolbar'
         ];
         
+        // 3. Filter out icons (Handled by svg-audit.js)
+        // If it's an <i> or <span> with icon classes, has no role, and little text, skip it.
+        const isIconCandidate = (tag === 'i' || (tag === 'span' && (el.className || '').toString().match(/icon|fa-|glyph|symbol|material|ld-/i))) && el.innerText.trim().length <= 2;
+        if (isIconCandidate && !role && !isFocusable(el)) return;
+
         if (!isFocusable(el) && !hasNamingAttr && !isImg && !interactiveRoles.includes(role)) {
              return;
         }
@@ -323,32 +328,60 @@
                 const usages = nameData[lower];
                 
                 if (usages && usages.length > 1) {
-                    // Smart Check: Are they all links to the same place?
-                    const allLinks = usages.every(u => u.href);
-                    if (allLinks) {
-                        const firstHref = usages[0].href;
-                        const allSame = usages.every(u => u.href === firstHref);
-                        if (allSame) {
-                            // Valid duplicate (Same Name, Same Destination)
-                            return; 
+                    // Helper to determine role/type for comparison
+                    const getRoleType = (e) => {
+                        const r = e.getAttribute('role');
+                        if (r) return r;
+                        const t = e.tagName.toLowerCase();
+                        if (t === 'a' && e.hasAttribute('href')) return 'link';
+                        if (t === 'button') return 'button';
+                        if (t === 'img') return 'img';
+                        if (t === 'input') {
+                            const type = e.type;
+                            if (['button', 'submit', 'reset', 'image'].includes(type)) return 'button';
+                            return 'textbox'; 
                         }
-                    }
-                    
-                    // Otherwise, flag it
-                    let msg = `Name is used ${usages.length} times.`;
-                    if (allLinks) {
-                        msg += ` (Links go to different destinations)`;
-                    } else {
-                        msg += ` (Verify they perform the same function)`;
-                    }
-                    
-                    issues.push({
-                        id: rule.id,
-                        msg: msg,
-                        severity: rule.severity,
-                        guidance: rule.guidance,
-                        requiresReview: true
+                        if (t === 'select') return 'combobox';
+                        if (t === 'textarea') return 'textbox';
+                        return t;
+                    };
+
+                    const myType = getRoleType(item.element);
+
+                    // Filter: Must be focusable AND same type
+                    const relevantUsages = usages.filter(u => {
+                        if (!isFocusable(u.element)) return false;
+                        return getRoleType(u.element) === myType;
                     });
+
+                    if (relevantUsages.length > 1) {
+                        // Smart Check: Are they all links to the same place?
+                        const allLinks = relevantUsages.every(u => u.href);
+                        if (allLinks) {
+                            const firstHref = relevantUsages[0].href;
+                            const allSame = relevantUsages.every(u => u.href === firstHref);
+                            if (allSame) {
+                                // Valid duplicate (Same Name, Same Destination)
+                                return; 
+                            }
+                        }
+                        
+                        // Otherwise, flag it
+                        let msg = `Name is used ${relevantUsages.length} times on similar elements (${myType}).`;
+                        if (allLinks) {
+                            msg += ` (Links go to different destinations)`;
+                        } else {
+                            msg += ` (Verify they perform the same function)`;
+                        }
+                        
+                        issues.push({
+                            id: rule.id,
+                            msg: msg,
+                            severity: rule.severity,
+                            guidance: rule.guidance,
+                            requiresReview: true
+                        });
+                    }
                 }
             } else {
                 const error = rule.check(item.name, item.element, items);
@@ -429,6 +462,17 @@
                         <div>Elements Scanned</div>
                     </div>
                 </div>
+
+                <div style="margin-top: 20px; padding: 15px; background: #e3fcef; border-radius: 6px; border: 1px solid #006644; color: #006644; font-size: 13px;">
+                    <strong>Recommended Fixes:</strong>
+                    <ul style="margin: 5px 0 0 20px; padding: 0;">
+                        <li><strong>Empty Name:</strong> Interactive elements MUST have a label. <strong>Prefer visible text content</strong>; otherwise use <code>aria-label</code> or <code>aria-labelledby</code>.</li>
+                        <li><strong>Prohibited Name:</strong> Generic elements (like <code>&lt;div&gt;</code>) ignore naming attributes. <strong>Fix: Remove aria-label/aria-labelledby</strong> (preferred), or add a valid role (e.g. <code>group</code>, <code>region</code>). If labeling a child, move the attribute to that child.</li>
+                        <li><strong>Duplicate Name:</strong> Elements with the same name should do the same thing. If two buttons say "Edit" but edit different items, use unique names like "Edit Profile" and "Edit Settings".</li>
+                        <li><strong>Vague Name:</strong> Avoid "Click Here" or "Read More". The name should describe the destination or action (e.g. "Read more about pricing").</li>
+                    </ul>
+                </div>
+
                 <div class="controls">
                     <button id="exportBtn">Export CSV Report</button>
                 </div>

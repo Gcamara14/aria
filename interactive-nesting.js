@@ -75,14 +75,17 @@
                 // We are currently at C. Parent is B.
                 // If B is also interactive, it will be caught when we process B.
                 
+                const pRole = parent.getAttribute('role');
+                const pTagDisplay = pRole ? `&lt;${parent.tagName.toLowerCase()} role="${pRole}"&gt;` : `&lt;${parent.tagName.toLowerCase()}&gt;`;
+
                 issues.push({
                     child: child,
                     childTag: child.tagName.toLowerCase(),
                     childRole: child.getAttribute('role') || '(implicit)',
                     parent: parent,
                     parentTag: parent.tagName.toLowerCase(),
-                    parentRole: parent.getAttribute('role') || '(implicit)',
-                    msg: `Nested Interactive Controls: <${child.tagName.toLowerCase()}> inside <${parent.tagName.toLowerCase()}>`
+                    parentRole: pRole || '(implicit)',
+                    msg: `Nested Interactive Controls: &lt;${child.tagName.toLowerCase()}&gt; inside ${pTagDisplay}`
                 });
                 
                 // Stop after finding the closest interactive ancestor to avoid noise
@@ -124,9 +127,9 @@
                 <div style="margin-top: 15px; padding: 15px; background: #e3fcef; border-radius: 6px; border: 1px solid #006644; color: #006644; font-size: 13px;">
                     <strong>Recommended Fixes:</strong>
                     <ul style="margin: 5px 0 0 20px; padding: 0;">
-                        <li><strong>Refactor Layout:</strong> Move the inner element out so they are siblings, not parent/child. Use CSS (absolute positioning/z-index) to visually overlay them if needed.</li>
-                        <li><strong>Remove Redundancy:</strong> If the outer element is already clickable (e.g., an accordion header), you often don't need an inner button (e.g., a chevron). Just use an icon.</li>
-                        <li><strong>Simplify Tab Stops:</strong> Nested controls create confusing tab stops. Consolidating them improves keyboard navigation.</li>
+                        <li><strong>Refactor Layout (Siblings):</strong> Move the inner interactive element out of the parent so they are DOM siblings. Use CSS (absolute positioning) to visually overlay them if needed.</li>
+                        <li><strong>Remove Redundancy:</strong> If the outer element is already actionable (e.g. an accordion header), remove the inner interactive element (e.g. the chevron button) and just use a non-interactive icon.</li>
+                        <li><strong>Simplify Tab Stops:</strong> Consolidate nested controls into a single interactive element to improve keyboard navigation and avoid "tab traps".</li>
                     </ul>
                 </div>
             </header>

@@ -9,19 +9,22 @@ This suite of JavaScript bookmarklets is designed to help developers and QA engi
 
 **Key Features:**
 *   **Computation:** Shows exactly what screen readers will announce (handling `aria-labelledby`, `aria-label`, native labels, and recursion).
+    *   *Update:* Correctly handles empty `aria-label`/`aria-labelledby` by falling back to inner content.
+*   **Smart Filtering:**
+    *   Focuses on interactive elements and specific roles. Excludes static content (like `p` tags) unless they are explicitly interactive or labeled.
+    *   **Excludes Icons:** Defers icon validation to `svg-audit.js` to avoid overlapping reports.
 *   **Validation:** Flags issues like:
     *   Empty accessible names.
     *   **Prohibited Names (Rule ACC-NAME-010):** Flags `aria-label` or `aria-labelledby` on generic elements (`div`, `span`) or other prohibited tags (`label`, `p`, `strong`).
-    *   **Smart Fix Suggestions:** If a prohibited name is found on a container, it suggests moving the attribute to a specific interactive child (e.g., "Move aria-label to `<input>`").
-    *   **Duplicate Names:** Flags identical names on different elements.
-*   **Review Mode:** Adds a **"Needs Human/AI Review"** badge for duplicate names, helping you decide if the context justifies the duplication or if it's an error.
+    *   **Duplicate Names:** Flags identical names on different elements. *Update:* Now strictly compares elements of the same role/type (e.g., won't flag a "Search" button against a "Search" input).
+*   **Report Header:** Includes a "Recommended Fixes" section with clear, actionable advice (e.g., prioritizing visible text, explicit attribute removal).
 
 ### 2. SVG & Icon Audit (`svg-audit.js`)
 **Purpose:** Audits all SVGs and Icon Fonts (e.g., `<i>`, `<span class="icon">`) to ensure they are either properly hidden or properly labeled.
 
 **Key Rules Enforced:**
 *   **Decorative Icons:** MUST have `aria-hidden="true"` (or have a parent with `aria-hidden="true"`).
-*   **Meaningful Icons:** MUST have `role="img"` AND a valid Accessible Name (`aria-label`).
+*   **Meaningful Icons:** MUST have **BOTH** `role="img"` **AND** a valid Accessible Name (`aria-label`).
 *   **No Title Attributes:** Flags the use of `title="..."` as insufficient, as it often computes to a Description rather than a Name. Enforces `aria-label` instead.
 
 **Recommended Fixes:**
@@ -34,11 +37,16 @@ This suite of JavaScript bookmarklets is designed to help developers and QA engi
 **Common Scenarios Caught:**
 *   `<button>` inside an `<a>` tag.
 *   `<a>` inside a `<button>`.
-*   Interactive elements inside `role="button"`.
+*   Interactive elements inside `role="button"` (e.g., `<button>` inside `<div role="button">`).
+
+**Reporting Improvements:**
+*   Clearly identifies parent roles (e.g., `<div role="button">`) to help pinpoint the issue.
+*   Provides specific, actionable fix recommendations for layout refactoring and tab stop simplification.
 
 **Fix Recommendations:**
 *   **Refactor Layout:** Move elements to be siblings and use CSS/z-index to overlay them visually.
 *   **Remove Redundancy:** If a card is clickable, don't nest another button inside it; use an icon instead.
+*   **Simplify Tab Stops:** Consolidate nested controls to avoid "tab traps".
 
 ---
 
