@@ -19,9 +19,19 @@
         }
         const tag = el.tagName.toLowerCase();
         if (tag === 'a' && el.hasAttribute('href')) return true;
-        if (['button', 'input', 'select', 'textarea'].includes(tag)) return true;
+        if (['button', 'input', 'select', 'textarea', 'summary'].includes(tag)) return true;
         if (el.isContentEditable) return true;
         return false;
+    }
+
+    function escapeHtml(text) {
+        if (!text) return '';
+        return text
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
     }
 
     // --- Computation Logic ---
@@ -48,11 +58,15 @@
                      parts.push(computeName(ref, newVisited, true, isSelf));
                  }
              }
-             return parts.join(' ').trim();
+             const labelledby = parts.join(' ').trim();
+             if (labelledby) return labelledby;
         }
         
         // 2. aria-label
-        if (el.hasAttribute('aria-label')) return el.getAttribute('aria-label').trim();
+        if (el.hasAttribute('aria-label')) {
+            const label = el.getAttribute('aria-label').trim();
+            if (label) return label;
+        }
         
         // 3. Native
         const tagName = el.tagName.toLowerCase();
@@ -93,6 +107,11 @@
             title: 'Accessible name is not empty',
             severity: 'Critical',
             check: (name, el) => {
+                // Only check interactive elements or images for empty names
+                // We don't want to flag empty <h2> or <p> unless they are focusable
+                const isImg = el.tagName.toLowerCase() === 'img' || el.getAttribute('role') === 'img';
+                if (!isFocusable(el) && !isImg) return null;
+
                 if (!name || name.trim().length === 0) return "Name is empty or whitespace only";
                 return null;
             }
@@ -101,7 +120,8 @@
             id: 'ACC-NAME-002',
             title: 'Accessible name must not contain "undefined"',
             severity: 'Critical',
-            check: (name) => {
+            check: (name, el) => {
+                if (!isFocusable(el)) return null;
                 if (name.toLowerCase().includes('undefined')) return 'Name contains "undefined"';
                 return null;
             }
@@ -110,7 +130,8 @@
             id: 'ACC-NAME-003',
             title: 'Accessible name must be descriptive',
             severity: 'Moderate',
-            check: (name) => {
+            check: (name, el) => {
+                if (!isFocusable(el)) return null;
                 const vague = ['click here', 'item', 'option', 'button', 'link'];
                 if (vague.includes(name.toLowerCase())) return `Name "${name}" is too vague`;
                 return null;
@@ -120,7 +141,8 @@
             id: 'ACC-NAME-004',
             title: 'Avoid generic phrases',
             severity: 'Moderate',
-            check: (name) => {
+            check: (name, el) => {
+                if (!isFocusable(el)) return null;
                 const generic = ['learn more', 'see more', 'see less', 'more', 'details', 'read more'];
                 if (generic.includes(name.toLowerCase())) return `Name "${name}" is generic without context`;
                 return null;
@@ -137,7 +159,8 @@
             id: 'ACC-NAME-006',
             title: 'Name must not contain role type',
             severity: 'Moderate',
-            check: (name) => {
+            check: (name, el) => {
+                if (!isFocusable(el)) return null;
                 // LEGACY: This rule is disabled because product names often contain role words 
                 // (e.g. "Sharper Image", "Button Floral Dress"), causing false positives.
                 return null;
@@ -147,7 +170,8 @@
             id: 'ACC-NAME-007',
             title: 'Name must not contain internal duplication',
             severity: 'Moderate',
-            check: (name) => {
+            check: (name, el) => {
+                if (!isFocusable(el)) return null;
                 const match = name.match(/^(.+?)(?:\s*[\.\-]\s*|\s+)\1$/i);
                 if (match) return `Name repeats itself: "${match[1]}"`;
                 return null;
@@ -157,7 +181,11 @@
             id: 'ACC-NAME-008',
             title: 'Name should be concise',
             severity: 'Warning',
-            check: (name) => {
+            check: (name, el) => {
+                // Only check interactive elements or images
+                const isImg = el.tagName.toLowerCase() === 'img' || el.getAttribute('role') === 'img';
+                if (!isFocusable(el) && !isImg) return null;
+
                 if (name.length > 350) return `Name is too long (${name.length} chars)`;
                 return null;
             }
@@ -170,6 +198,56 @@
                 if (el.getAttribute('aria-hidden') === 'true') {
                     return 'Focusable element is aria-hidden="true" but not removed from tab order';
                 }
+                return null;
+            }
+        },
+        {
+            id: 'ACC-NAME-010',
+            title: 'Prohibited uses of aria-label/labelledby',
+            severity: 'Critical',
+            check: (name, el) => {
+                // 1. Check if naming attributes are present
+                const hasLabel = el.hasAttribute('aria-label');
+                const hasLabelledBy = el.hasAttribute('aria-labelledby');
+                
+                // If no naming attributes, rule doesn't apply
+                if (!hasLabel && !hasLabelledBy) return null;
+
+                // 2. Determine Role
+                const tag = el.tagName.toLowerCase();
+                const role = el.getAttribute('role');
+
+                // Helper for suggestion
+                const getSuggestion = () => {
+                    const interactive = el.querySelector('input, button, a[href], select, textarea');
+                    if (interactive) return ` (Fix: Move aria-label to <${interactive.tagName.toLowerCase()}>)`;
+                    if (tag === 'label') return ' (Fix: Remove aria-label, use visible text)';
+                    return ' (Fix: Remove attribute or add valid role)';
+                };
+
+                // List of roles that PROHIBIT naming (ARIA 1.2)
+                const prohibitedRoles = [
+                    'caption', 'code', 'deletion', 'emphasis', 'generic', 
+                    'insertion', 'paragraph', 'presentation', 'none', 
+                    'strong', 'subscript', 'superscript'
+                ];
+
+                // Check Explicit Role
+                if (role && prohibitedRoles.includes(role)) {
+                    return `Role "${role}" prohibits naming attributes.${getSuggestion()}`;
+                }
+
+                // Check Implicit Role (Generic elements)
+                // div and span are 'generic' unless they have a role
+                if (!role && (tag === 'div' || tag === 'span')) {
+                    return `Generic <${tag}> elements ignore aria-label/labelledby.${getSuggestion()}`;
+                }
+
+                // Check Implicit Role (Presentational or Prohibited)
+                if (!role && ['br', 'b', 'i', 'p', 'strong', 'em', 'code', 's', 'u', 'label'].includes(tag)) {
+                     return `<${tag}> prohibits naming attributes.${getSuggestion()}`;
+                }
+
                 return null;
             }
         }
@@ -192,10 +270,25 @@
         // 1. Aria-Hidden Logic (Smarter Check: Is element OR ancestor hidden?)
         if (el.closest('[aria-hidden="true"]')) return;
 
+        // 2. Filter out non-interactive elements that don't have naming attributes
+        const tag = el.tagName.toLowerCase();
+        const role = el.getAttribute('role');
+        const hasNamingAttr = el.hasAttribute('aria-label') || el.hasAttribute('aria-labelledby');
+        const isImg = tag === 'img' || role === 'img';
+        const interactiveRoles = [
+            'button', 'link', 'checkbox', 'menuitem', 'menuitemcheckbox', 'menuitemradio', 
+            'option', 'radio', 'switch', 'tab', 'textbox', 'combobox', 'gridcell', 
+            'slider', 'spinbutton', 'treeitem', 'searchbox',
+            'application', 'dialog', 'alertdialog', 'grid', 'listbox', 'menu', 'menubar', 
+            'radiogroup', 'tablist', 'tree', 'treegrid', 'toolbar'
+        ];
+        
+        if (!isFocusable(el) && !hasNamingAttr && !isImg && !interactiveRoles.includes(role)) {
+             return;
+        }
+
         const name = computeName(el);
         const lowerName = name.toLowerCase().trim();
-        
-        let tag = el.tagName.toLowerCase();
         let href = (tag === 'a' && el.hasAttribute('href')) ? el.href : null;
         
         if (lowerName) {
@@ -224,6 +317,8 @@
         
         Rules.forEach(rule => {
             if (rule.id === 'ACC-NAME-005') {
+                if (!isFocusable(item.element)) return;
+
                 const lower = item.name.toLowerCase().trim();
                 const usages = nameData[lower];
                 
@@ -404,9 +499,9 @@
                         <div class="issue-header">
                             <span class="tag-${i.severity.toLowerCase()}">${i.severity}</span>
                             ${i.requiresReview ? '<span class="tag-review">Needs Human/AI Review</span>' : ''}
-                            <span><b>[${i.id}]</b> ${i.msg}</span>
+                            <span><b>[${i.id}]</b> ${escapeHtml(i.msg)}</span>
                         </div>
-                        ${i.guidance ? `<div class="guidance">${i.guidance}</div>` : ''}
+                        ${i.guidance ? `<div class="guidance">${escapeHtml(i.guidance)}</div>` : ''}
                     </li>
                 `).join('')}
             </ul>`;

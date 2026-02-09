@@ -5,13 +5,14 @@ This suite of JavaScript bookmarklets is designed to help developers and QA engi
 ## The Bookmarklets
 
 ### 1. AccName Audit (`accname.js`)
-**Purpose:** Computes the "Accessible Name" for every interactive element on the page using the full [W3C AccName Computation Algorithm](https://www.w3.org/TR/accname-1.2/).
+**Purpose:** The "One Stop Shop" for accessible name validation. It computes the "Accessible Name" for every element and validates it against ARIA 1.2 rules.
 
 **Key Features:**
 *   **Computation:** Shows exactly what screen readers will announce (handling `aria-labelledby`, `aria-label`, native labels, and recursion).
 *   **Validation:** Flags issues like:
     *   Empty accessible names.
-    *   **Prohibited Names:** `aria-label` on generic elements like `div` or `span` (Rule `ACC-NAME-010`).
+    *   **Prohibited Names (Rule ACC-NAME-010):** Flags `aria-label` or `aria-labelledby` on generic elements (`div`, `span`) or other prohibited tags (`label`, `p`, `strong`).
+    *   **Smart Fix Suggestions:** If a prohibited name is found on a container, it suggests moving the attribute to a specific interactive child (e.g., "Move aria-label to `<input>`").
     *   **Duplicate Names:** Flags identical names on different elements.
 *   **Review Mode:** Adds a **"Needs Human/AI Review"** badge for duplicate names, helping you decide if the context justifies the duplication or if it's an error.
 
@@ -38,15 +39,6 @@ This suite of JavaScript bookmarklets is designed to help developers and QA engi
 **Fix Recommendations:**
 *   **Refactor Layout:** Move elements to be siblings and use CSS/z-index to overlay them visually.
 *   **Remove Redundancy:** If a card is clickable, don't nest another button inside it; use an icon instead.
-
-### 4. Prohibited Names Audit (`prohibited-names.js`)
-**Purpose:** A dedicated, lightweight tool specifically for finding `aria-label` or `aria-labelledby` on elements where they are prohibited by the ARIA spec.
-
-**Key Features:**
-*   **Targeted Checks:** Flags `div`, `span`, `label`, `p`, `strong`, etc., that have naming attributes.
-*   **Smart Suggestions:**
-    *   If the container has an input/button, it suggests: **"Move aria-label to `<input>` child"**.
-    *   If it's a `<label>`, it suggests: **"Remove (use visible text)"**.
 
 ---
 
